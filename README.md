@@ -33,7 +33,7 @@ Based from [TKazer's External Base](https://github.com/TKazer/CS2_External)
 - Player
 - Headshot Line
 - Line to Enemy
-## Colors
+### Colors
 - Box Color
 - Bone Color
 - Eye Ray Color
