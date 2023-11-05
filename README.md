@@ -1,8 +1,9 @@
-# overflow.su | Counter-Strike: 2
+# Overflow | Counter-Strike: 2
 Based from [TKazer's External Base](https://github.com/TKazer/CS2_External)
 
 # Some Informations:
 - MENU TOGGLE KEY IS NOT (INSERT), MENU KEY IS (HOME)!!!!
+- Aimbot and Bunnyhop will definitely ban you. It's recommended not to use!
 
 # What Does Ch*at Have?
 ## Aimbot
