@@ -1,4 +1,4 @@
-// dear imgui, v1.91.7
+﻿// dear imgui, v1.91.7
 // (widgets code)
 
 /*
@@ -10343,6 +10343,71 @@ void ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
 
     if (out_just_closed)
         *out_just_closed = close_button_pressed;
+}
+
+bool ImGui::OFCheckbox(const char* label, bool* v) {
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems) return false;
+    ImGuiContext& g = *GImGui;
+    const ImGuiStyle& style = g.Style;
+    const ImGuiID id = window->GetID(label);
+    const ImVec2 label_size = CalcTextSize(label, NULL, true);
+    const float square_sz = GetFrameHeight();
+    const ImVec2 pos = window->DC.CursorPos;
+    const ImRect total_bb(pos, pos + ImVec2(square_sz + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 2.0f));
+    ItemSize(total_bb, style.FramePadding.y);
+    const bool is_visible = ItemAdd(total_bb, id);
+    const bool is_multi_select = (g.LastItemData.ItemFlags & ImGuiItemFlags_IsMultiSelect) != 0;
+    if (!is_visible)
+    {
+        if (!is_multi_select || !g.BoxSelectState.UnclipMode || !g.BoxSelectState.UnclipRect.Overlaps(total_bb))
+        {
+            IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (*v ? ImGuiItemStatusFlags_Checked : 0));
+            return false;
+        }
+    }
+    bool checked = *v;
+    if (is_multi_select) MultiSelectItemHeader(id, &checked, NULL);
+    bool hovered, held;
+    bool pressed = ButtonBehavior(total_bb, id, &hovered, &held);
+    if (is_multi_select) MultiSelectItemFooter(id, &checked, &pressed);
+    else if (pressed) checked = !checked;
+
+    if (*v != checked)
+    {
+        *v = checked;
+        pressed = true; // return value
+        MarkItemEdited(id);
+    }
+
+    const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
+    auto draw = ImGui::GetWindowDrawList();
+    const bool mixed_value = (g.LastItemData.ItemFlags & ImGuiItemFlags_MixedValue) != 0;
+    if (is_visible)
+    {
+        RenderNavCursor(total_bb, id);
+        RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding);
+        ImU32 check_col = GetColorU32(ImGuiCol_CheckMark);
+        if (mixed_value)
+        {
+            ImVec2 pad(ImMax(1.0f, IM_TRUNC(square_sz / 3.6f)), ImMax(1.0f, IM_TRUNC(square_sz / 3.6f)));
+            window->DrawList->AddRectFilled(check_bb.Min + pad, check_bb.Max - pad, check_col, style.FrameRounding);
+        }
+        else if (*v)
+        {
+            const float pad = ImMax(1.0f, IM_TRUNC(square_sz / 4.0f));
+            ImRect fill_bb(check_bb.Min + ImVec2(pad, pad), check_bb.Max - ImVec2(pad, pad));
+            ImGui::RenderFrame(fill_bb.Min, fill_bb.Max, IM_COL32(0, 255, 255, 255), true, 0.0f);
+            draw->AddRect(check_bb.Min, check_bb.Max, ImColor(0, 255, 255, 255));
+        }
+        else {
+            draw->AddRect(check_bb.Min, check_bb.Max, ImColor(0, 255, 255, 255));
+        }
+    }
+    const ImVec2 label_pos = ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y);
+    if (is_visible && label_size.x > 0.0f) RenderText(label_pos, label);
+    IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (*v ? ImGuiItemStatusFlags_Checked : 0));
+    return pressed;
 }
 
 

@@ -143,7 +143,9 @@
     <ClCompile Include="Utilities\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Features\AntiFlash.h" />
     <ClInclude Include="Features\ESP.h" />
+    <ClInclude Include="Helpers\gui.h" />
     <ClInclude Include="Helpers\memory.h" />
     <ClInclude Include="Helpers\render.h" />
     <ClInclude Include="Helpers\vector.h" />
@@ -157,6 +159,7 @@
     <ClInclude Include="Utilities\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Utilities\ImGui\imstb_textedit.h" />
     <ClInclude Include="Utilities\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Helpers\vars.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

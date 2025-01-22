@@ -1,4 +1,4 @@
-#include <Windows.h>
+﻿#include <Windows.h>
 #include <thread>
 #include <dwmapi.h>
 #include <d3d11.h>
@@ -9,6 +9,9 @@
 #include "Helpers/memory.h"
 #include "Helpers/vector.h"
 #include "Features/ESP.h"
+#include "Helpers/gui.h"
+#include "Features/AntiFlash.h"
+#pragma comment(lib, "dwmapi.lib")
 
 int screenWidth = GetSystemMetrics(SM_CXSCREEN);
 int screenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -37,9 +40,7 @@ LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM wparam, LPAR
 }
 INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 	auto ProcessStatus = ProcessMgr.Attach("cs2.exe");
-	//if (!ProcessStatus) return -1;
 	DWORD64 client = reinterpret_cast<DWORD64>(ProcessMgr.GetProcessModuleHandle("client.dll"));
-	//if (!client == 0) return -1;
 	WNDCLASSEXW wc{};
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -64,6 +65,14 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		};
 		DwmExtendFrameIntoClientArea(overlay, &margins);
 	}
+	LONG exStyle = GetWindowLong(overlay, GWL_EXSTYLE);
+	SetWindowLong(overlay, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+	SetLayeredWindowAttributes(overlay, RGB(0, 0, 0), 255, LWA_COLORKEY);
+	DWM_BLURBEHIND bb = { 0 };
+	bb.dwFlags = DWM_BB_ENABLE;
+	bb.fEnable = TRUE;
+	bb.hRgnBlur = NULL;
+	DwmEnableBlurBehindWindow(overlay, &bb);
 	DXGI_SWAP_CHAIN_DESC sd{};
 	sd.BufferDesc.RefreshRate.Numerator = 60U; //60FPS
 	sd.BufferDesc.RefreshRate.Denominator = 1U;
@@ -101,14 +110,32 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 			if (msg.message == WM_QUIT) running = false;
 		}
 		if (!running) break;
+
+		//BUGFIX #1: ImGui MouseFix by TxmuXn
+		POINT cursorPos_Windows;
+		GetCursorPos(&cursorPos_Windows);
+		ImVec2 cursorPos = ImVec2(cursorPos_Windows.x, cursorPos_Windows.y);
+		bool mouseClicked = GetAsyncKeyState(VK_LBUTTON);
+		ImGui::GetIO().MousePos = cursorPos;
+		ImGui::GetIO().MouseDown[0] = mouseClicked;
+
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		// FEATURES
-		RunEsp(client);
-		// USER INTERFACE
+		// KEY EVENTS
+		if (GetAsyncKeyState(VK_INSERT)) {
+			GVARS::Menu::Active = !GVARS::Menu::Active;
+			Sleep(200);
+		}
 
+		// USER INTERFACE
+		if (GVARS::Menu::Active) GUI::Menu();
+
+		// FEATURES
+		RunEsp(client, GVARS::Visuals::ESP::enable, GVARS::Visuals::ESP::box, GVARS::Visuals::ESP::name);
+		RunAntiFlash(client, GVARS::Visuals::Camera::antiFlash);
+		//BUGFIX #2: Menu Variable Fix by TxmuXn
 
 		ImGui::Render();
 		float color[4]{ 0,0,0,0 };
@@ -116,6 +143,7 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		device_context->ClearRenderTargetView(render_target_view, color);
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		swap_chain->Present(0U, 0U);
+		Sleep(10);
 	}
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
