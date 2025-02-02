@@ -1,10 +1,11 @@
-# OverFlow v0.02 for Counter-Strike 2
+# OverFlow v0.03 for Counter-Strike 2
 This program is designed to perform multiple *heats on the CS2 game.<br>
 The program will be updated regularly when the game is updated. New features will come with each update!
 
 ## Features
-- ESP (Box, Name)
+- ESP (Box, Name, Health, Healthbar, Weapon)
 - Anti Flash
+- Fov Changer
 
 ## Compiling Source
 - Release, x64
