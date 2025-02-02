@@ -145,10 +145,14 @@
   <ItemGroup>
     <ClInclude Include="Features\AntiFlash.h" />
     <ClInclude Include="Features\ESP.h" />
+    <ClInclude Include="Features\FovChanger.h" />
     <ClInclude Include="Helpers\gui.h" />
+    <ClInclude Include="Helpers\keymap.h" />
     <ClInclude Include="Helpers\memory.h" />
     <ClInclude Include="Helpers\render.h" />
+    <ClInclude Include="Helpers\username.h" />
     <ClInclude Include="Helpers\vector.h" />
+    <ClInclude Include="Helpers\weaponmap.h" />
     <ClInclude Include="Offsets\client.h" />
     <ClInclude Include="Offsets\offsets.h" />
     <ClInclude Include="Utilities\ImGui\imconfig.h" />

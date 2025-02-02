@@ -1,14 +1,15 @@
-#include "ESP.h"
+﻿#include "ESP.h"
 #include "../Offsets/offsets.h"
 #include "../Offsets/client.h"
 #include "../Helpers/render.h"
 #include "../Helpers/vector.h"
 #include "../Helpers/vars.h"
+#include "../Helpers/weaponmap.h"
 
 using namespace cs2_dumper::offsets::client_dll;
 using namespace cs2_dumper::schemas::client_dll;
 
-void RunEsp(uintptr_t client, bool enable, bool box, bool name) {
+void RunEsp(uintptr_t client, bool enable, bool box, bool name, bool healthbar, bool health, bool weapon) {
 	if (enable) {
 		uintptr_t lpp;
 		ProcessMgr.ReadMemory(client + dwLocalPlayerPawn, lpp);
@@ -32,6 +33,7 @@ void RunEsp(uintptr_t client, bool enable, bool box, bool name) {
 			if (pt == lpt) continue;
 			char pn[MAX_PATH]{};
 			ProcessMgr.ReadMemory(pl + CBasePlayerController::m_iszPlayerName, pn);
+			if (!pn) continue;
 			uint32_t pp;
 			ProcessMgr.ReadMemory(pl + CCSPlayerController::m_hPlayerPawn, pp);
 			uintptr_t el2;
@@ -54,6 +56,16 @@ void RunEsp(uintptr_t client, bool enable, bool box, bool name) {
 			RGB enemy = { 255, 0, 0 };
 			if (name) Render::DrawLabel(head_w2s.x - width / 2 - 5, head_w2s.y - 15, { 255, 255, 255 }, pn);
 			if (box) Render::DrawRect(head_w2s.x - width / 2, head_w2s.y, width, height, enemy, 2);
+			if (healthbar) {
+				float healthHeight = 100 * (ph / 100.0f);
+				healthHeight = healthHeight > 25 ? 25 : healthHeight;
+				Render::DrawFilledRect(origin_w2s.x - width / 2 - 5, origin_w2s.y, 2, 25, { 1,1,1 });
+				Render::DrawFilledRect(origin_w2s.x - width / 2 - 5, origin_w2s.y, 2, healthHeight, enemy);
+			}
+			std::string playerhealth_str = std::to_string(ph);
+			const char* playerhealth = playerhealth_str.c_str();
+			if (health) Render::DrawLabel(head_w2s.x - width / 2 - 30, head_w2s.y, { 255, 255, 255 }, playerhealth);
+			//if (weapon) Render::DrawLabel(head_w2s.x - width / 2 - 5, head_w2s.y - 15, { 255, 255, 255 }, wn.c_str());
 		}
 	}
 }

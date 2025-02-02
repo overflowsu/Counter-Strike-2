@@ -11,6 +11,7 @@
 #include "Features/ESP.h"
 #include "Helpers/gui.h"
 #include "Features/AntiFlash.h"
+#include "Features/FovChanger.h"
 #pragma comment(lib, "dwmapi.lib")
 
 int screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -124,17 +125,19 @@ INT APIENTRY WinMain(HINSTANCE instance, HINSTANCE, PSTR, INT cmd_show) {
 		ImGui::NewFrame();
 
 		// KEY EVENTS
-		if (GetAsyncKeyState(VK_INSERT)) {
+		if (GetAsyncKeyState(GVARS::Menu::MenuKey)) {
 			GVARS::Menu::Active = !GVARS::Menu::Active;
 			Sleep(200);
 		}
 
 		// USER INTERFACE
 		if (GVARS::Menu::Active) GUI::Menu();
+		if (GVARS::Visuals::Menu::watermark) GUI::Watermark(client);
 
 		// FEATURES
-		RunEsp(client, GVARS::Visuals::ESP::enable, GVARS::Visuals::ESP::box, GVARS::Visuals::ESP::name);
-		RunAntiFlash(client, GVARS::Visuals::Camera::antiFlash);
+		RunEsp(client, GVARS::Visuals::ESP::enable, GVARS::Visuals::ESP::box, GVARS::Visuals::ESP::name, GVARS::Visuals::ESP::healthbar, GVARS::Visuals::ESP::health, GVARS::Visuals::ESP::weapon);
+		RunAntiFlash(client, GVARS::Visuals::Effects::antiFlash);
+		RunFovChanger(client, GVARS::Visuals::Camera::fovchanger, GVARS::Visuals::Camera::fov);
 		//BUGFIX #2: Menu Variable Fix by TxmuXn
 
 		ImGui::Render();

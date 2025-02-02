@@ -14,3 +14,5 @@ void RunAntiFlash(uintptr_t client, bool enable) {
 		ProcessMgr.WriteMemory(lpp + C_CSPlayerPawnBase::m_flFlashDuration, duration);
 	}
 }
+
+// AntiFlash by TxmuXn
